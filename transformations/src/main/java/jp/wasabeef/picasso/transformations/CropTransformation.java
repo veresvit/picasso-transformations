@@ -26,6 +26,7 @@ public class CropTransformation implements Transformation {
 
     private int mWidth;
     private int mHeight;
+    private CropType mCropType = CropType.CENTER;
 
     public CropTransformation() {
     }
@@ -33,6 +34,12 @@ public class CropTransformation implements Transformation {
     public CropTransformation(int width, int height) {
         mWidth = width;
         mHeight = height;
+    }
+
+    public CropTransformation(int width, int height, CropType cropType) {
+        mWidth = width;
+        mHeight = height;
+        mCropType = cropType;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class CropTransformation implements Transformation {
         float scaledWidth = scale * source.getWidth();
         float scaledHeight = scale * source.getHeight();
         float left = (mWidth - scaledWidth) / 2;
-        float top = (mHeight - scaledHeight) / 2;
+        float top = getTop(scaledHeight);
         RectF targetRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
 
         Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, source.getConfig());
@@ -64,6 +71,26 @@ public class CropTransformation implements Transformation {
 
     @Override
     public String key() {
-        return "CropTransformation(width=" + mWidth + ", height=" + mHeight + ")";
+        return "CropTransformation(width=" + mWidth + ", height=" + mHeight + ", cropType="
+                + mCropType + ")";
+    }
+
+    private float getTop(float scaledHeight) {
+        switch (mCropType) {
+            case TOP:
+                return 0;
+            case CENTER:
+                return (mHeight - scaledHeight) / 2;
+            case BOTTOM:
+                return mHeight - scaledHeight;
+            default:
+                return 0;
+        }
+    }
+
+    public enum CropType {
+        TOP,
+        CENTER,
+        BOTTOM
     }
 }
